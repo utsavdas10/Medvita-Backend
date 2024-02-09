@@ -5,6 +5,7 @@ from uvicorn import run
 from keras.models import load_model
 
 import os
+import sys
 from pathlib import Path
 from utils.mfcc import extract_mfcc
 from utils.resize import resize_mfcc
@@ -47,5 +48,9 @@ async def create_upload_files(audiofile: UploadFile):
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 8001))
+    try:
+        port = int(os.environ.get("PORT", 8000))  # Retrieve PORT or default to 4000
+    except ValueError:  # Handle invalid PORT values
+        print("Invalid PORT environment variable. Using default port 4000.")
+        port = 4000
     run(app, host="0.0.0.0", port=port)
