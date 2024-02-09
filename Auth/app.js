@@ -8,6 +8,8 @@ const mongoose = require('mongoose');
 
 // Local imports
 const HttpError = require('./models/http-error');
+const authUserRoutes = require('./routes/auth_user-routes');
+
 
 // Initializing
 const app = express();
@@ -33,7 +35,7 @@ app.use((req, res, next) => {
 
 
 // Routes middleware initialization
-
+app.use('/api/auth', authUserRoutes); // Routes for user authentication
 
 // Page not found middleware
 app.use((req, res, next) => {
