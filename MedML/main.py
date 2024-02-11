@@ -10,14 +10,14 @@ from pathlib import Path
 from utils.mfcc import extract_mfcc
 from utils.resize import resize_mfcc
 
+import cv2
+from fastapi import WebSocket, WebSocketDisconnect
 
 app = FastAPI()
 
 model_dir = "SERModel.h5"
 model = load_model(model_dir)
 
-# pickle_in = open("SER_Pickle.pkl", "rb")
-# classifier = pickle.load(pickle_in)
 
 app.add_middleware(
     CORSMiddleware,
@@ -61,6 +61,41 @@ async def create_upload_files(audiofile: UploadFile):
     emotion = emotions[index]
 
     return {"out": emotion}
+
+
+# A function to process the video frame and return it as bytes
+def process_video_frame(data):
+    # Decode the data as a numpy array
+    frame = cv2.imdecode(data, cv2.IMREAD_COLOR)
+    # Apply some image processing operations, such as grayscale, blur, etc.
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    frame = cv2.GaussianBlur(frame, (7, 7), 0)
+    # Encode the processed frame as JPEG and return it as bytes
+    _, buffer = cv2.imencode('.jpg', frame)
+    return buffer.tobytes()
+
+# A WebSocket endpoint to receive and send video frames
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    print("Client connected.")
+    try:
+        await websocket.send_text("Hello Motuuu !!!")
+        while True:
+            # Receive a video frame as bytes from the client
+            data = await websocket.receive_bytes()
+            if data:
+                # Process the video frame and return it as bytes
+                data = process_video_frame(data)
+                # Send the processed frame back to the client
+                await websocket.send_bytes(data)
+            else:
+                break
+
+    except WebSocketDisconnect:
+        print("Client disconnected.")
+        await websocket.close(code=1000)
+        
 
 
 if __name__ == "__main__":
