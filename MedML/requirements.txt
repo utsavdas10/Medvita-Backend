@@ -6,6 +6,6 @@ uvicorn==0.15.0
 keras==2.15
 pathlib==1.0.1
 python-multipart==0.0.7
-opencv-python==4.9.0
+opencv-python
 
 
