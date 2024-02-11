@@ -10,7 +10,6 @@ from pathlib import Path
 from utils.mfcc import extract_mfcc
 from utils.resize import resize_mfcc
 
-UPLOAD_PATH = Path() / "uploads"
 
 app = FastAPI()
 
@@ -33,8 +32,12 @@ app.add_middleware(
 async def create_upload_files(audiofile: UploadFile):
 
     # Save the file
+    UPLOAD_PATH = Path() / "uploads"
     data = await audiofile.read()
     save_to = UPLOAD_PATH / audiofile.filename
+
+    if not os.path.exists(UPLOAD_PATH):
+        os.makedirs(UPLOAD_PATH)
 
     with open(save_to, "wb") as f:
         f.write(data)
