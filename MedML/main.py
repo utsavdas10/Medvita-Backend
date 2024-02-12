@@ -116,4 +116,4 @@ if __name__ == "__main__":
     except ValueError:  # Handle invalid PORT values
         print("Invalid PORT environment variable. Using default port 4000.")
         port = 4000
-    run(app, host="127.0.0.1", port=port)
+    run(app, host="0.0.0.0", port=port)
