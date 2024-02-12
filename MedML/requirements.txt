@@ -2,11 +2,12 @@ numpy==1.26.4
 tensorflow==2.15.0
 librosa==0.10.1
 fastapi==0.73.0
-uvicorn==0.15.0
+uvicorn[standard]
+websockets
 keras==2.15
 pathlib==1.0.1
 python-multipart==0.0.7
 opencv-python==4.9.0
 numpy
 mediapipe
-
+opencv-python
