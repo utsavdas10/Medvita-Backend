@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Stream</title>
+</head>
+<body>
+    <video id="video" width="600" height="600" autoplay></video>
+    <canvas id="canvas" width="330" height="330" style="border-style:dotted; border-color: rgb(106, 0, 255); "></canvas>
+    
+    <script>
+        const videoElement = document.getElementById('video');
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+        canvas.width = videoElement.width
+        canvas.height = videoElement.height
+        
+
+        // Access webcam stream
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                videoElement.srcObject = stream;
+
+                // Create a WebSocket connection
+                const ws = new WebSocket('ws://127.0.0.1:8000/ws');
+
+                // When the connection is open
+                ws.addEventListener('open', () => {
+                    console.log('WebSocket connection established');
+                });
+
+                // When a new frame is available from the webcam
+                videoElement.addEventListener('play', () => {
+                    const canvasx = document.createElement('canvas');
+                    const contextx = canvasx.getContext('2d');
+                    canvasx.width = videoElement.width;
+                    canvasx.height = videoElement.height;
+
+                    setInterval(() => {
+                        contextx.drawImage(videoElement, 0, 0, canvasx.width, canvasx.height);
+                        const imageData = canvasx.toDataURL('image/jpeg', 1); // Convert frame to base64
+                        
+                        const imageBlob = fetch(imageData).then(res => res.blob()); // base64 to blob
+                        imageBlob.then(blob => ws.send(blob)); // Send the blob to the server
+                    }, 100); // Adjust the interval as needed
+                });
+
+                ws.onmessage = function(event) {
+
+                    var blob = event.data
+                    if (!blob.type) {
+                        blob = new Blob([blob], { type: 'image/jpeg' });
+                    }
+
+                    // Create an object URL from the Blob
+                    var url = URL.createObjectURL(blob);
+
+                    var img = new Image();
+                    img.onload = function() {
+                        // Draw the image onto the canvas
+                        context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    };
+                    img.src = url;
+    
+                };
+            })
+            .catch((error) => {
+                console.error('Error accessing webcam:', error);
+            });
+
+        
+    </script>
+</body>
+</html>

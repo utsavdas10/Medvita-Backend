@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import run
 
@@ -10,8 +10,8 @@ from pathlib import Path
 from utils.mfcc import extract_mfcc
 from utils.resize import resize_mfcc
 
-import cv2
-from fastapi import WebSocket, WebSocketDisconnect
+from video_processing.process_video_frame import process_video_frame
+
 
 app = FastAPI()
 
@@ -28,73 +28,85 @@ app.add_middleware(
 )
 
 
+# route to upload audio files
 @app.post("/uploadfiles/")
 async def create_upload_files(audiofile: UploadFile):
+    UPLOAD_PATH = Path() / "uploads" # Path to save the uploaded file
 
-    # Save the file
-    UPLOAD_PATH = Path() / "uploads"
-    data = await audiofile.read()
-    save_to = UPLOAD_PATH / audiofile.filename
+    try:
+        data = await audiofile.read() # Read the file
+        save_to = UPLOAD_PATH / audiofile.filename # Save the file to the path
 
-    if not os.path.exists(UPLOAD_PATH):
-        os.makedirs(UPLOAD_PATH)
+        if not os.path.exists(UPLOAD_PATH): # Create the directory if it doesn't exist
+            os.makedirs(UPLOAD_PATH)
 
-    with open(save_to, "wb") as f:
-        f.write(data)
-        print("File saved to", save_to)
+        try:
+            with open(save_to, "wb") as f: # Save the file
+                f.write(data)
+                print("File saved to", save_to)
+        except IOError as e:
+            print(f"Error saving file: {e}")
+            return {"error": "Error saving file"}
 
-    # Extract MFCC
-    mfcc = extract_mfcc(save_to)
-    X = resize_mfcc(mfcc) # resize
+        try:
+            mfcc = extract_mfcc(save_to) # extract mfcc
+            X = resize_mfcc(mfcc) # resize
+        except Exception as e:
+            print(f"Error processing file [extracting / resizing mfcc]: {e}")
+            return {"error": "Error processing file"}
 
-    #delete the file
-    os.remove(save_to)
+        os.remove(save_to) #delete the file
 
-    # Predict
-    out = model.predict(X)
+        try:
+            out = model.predict(X) # predict
+        except Exception as e:
+            print(f"Error predicting emotion: {e}")
+            return {"error": "Error predicting emotion"}
 
-    #finding the index of max
-    index = out.argmax()
+        index = out.argmax() # get the index of the highest value
+
+        emotions = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'ps', 'sad'] 
+        emotion = emotions[index]
+
+        return {"out": emotion}
+
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return {"error": "Unexpected error"}
 
 
-    emotions = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'ps', 'sad']
-    emotion = emotions[index]
 
-    return {"out": emotion}
-
-
-# A function to process the video frame and return it as bytes
-def process_video_frame(data):
-    # Decode the data as a numpy array
-    frame = cv2.imdecode(data, cv2.IMREAD_COLOR)
-    # Apply some image processing operations, such as grayscale, blur, etc.
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    frame = cv2.GaussianBlur(frame, (7, 7), 0)
-    # Encode the processed frame as JPEG and return it as bytes
-    _, buffer = cv2.imencode('.jpg', frame)
-    return buffer.tobytes()
 
 # A WebSocket endpoint to receive and send video frames
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    print("Client connected.")
     try:
-        await websocket.send_text("Hello Motuuu !!!")
-        while True:
-            # Receive a video frame as bytes from the client
-            data = await websocket.receive_bytes()
-            if data:
-                # Process the video frame and return it as bytes
-                data = process_video_frame(data)
-                # Send the processed frame back to the client
-                await websocket.send_bytes(data)
-            else:
-                break
+        await websocket.accept() # Accept the WebSocket connection
+        print("Client connected.")
 
-    except WebSocketDisconnect:
-        print("Client disconnected.")
-        await websocket.close(code=1000)
+        try:
+            await websocket.send_text("Initial Message")
+            while True:
+                # Receive a video frame as bytes from the client    
+                data = await websocket.receive_bytes()
+                if data:
+                    # Process the video frame and return it as bytes
+                    try:
+                        data = await process_video_frame(data) # Process the video frame
+                    except Exception as e:
+                        print(f"Error processing video frame: {e}")
+                        break
+                    # Send the processed frame back to the client
+                    await websocket.send_bytes(data)
+                else:
+                    break
+        except WebSocketDisconnect:
+            print("Client disconnected.")
+            await websocket.close(code=1000)
+            
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        await websocket.close(code=1011)
         
 
 
@@ -104,4 +116,4 @@ if __name__ == "__main__":
     except ValueError:  # Handle invalid PORT values
         print("Invalid PORT environment variable. Using default port 4000.")
         port = 4000
-    run(app, host="0.0.0.0", port=port)
+    run(app, host="127.0.0.1", port=port)
