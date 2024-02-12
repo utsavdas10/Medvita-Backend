@@ -6,11 +6,16 @@
     <title>Webcam Stream</title>
 </head>
 <body>
-    <video id="video" width="10%" height="10%" autoplay></video>
-    <img id="img" width="50%" height="50%">
+    <video id="video" width="600" height="600" autoplay></video>
+    <canvas id="canvas" width="330" height="330" style="border-style:dotted; border-color: rgb(106, 0, 255); "></canvas>
+    
     <script>
         const videoElement = document.getElementById('video');
-        const img = document.getElementById('img');
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+        canvas.width = videoElement.width
+        canvas.height = videoElement.height
+        
 
         // Access webcam stream
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -18,7 +23,7 @@
                 videoElement.srcObject = stream;
 
                 // Create a WebSocket connection
-                const ws = new WebSocket('ws://127.0.0.1/ws');
+                const ws = new WebSocket('ws://127.0.0.1:8000/ws');
 
                 // When the connection is open
                 ws.addEventListener('open', () => {
@@ -27,31 +32,37 @@
 
                 // When a new frame is available from the webcam
                 videoElement.addEventListener('play', () => {
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    canvas.width = videoElement.videoWidth;
-                    canvas.height = videoElement.videoHeight;
+                    const canvasx = document.createElement('canvas');
+                    const contextx = canvasx.getContext('2d');
+                    canvasx.width = videoElement.width;
+                    canvasx.height = videoElement.height;
 
                     setInterval(() => {
-                        context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-                        const imageData = canvas.toDataURL('image/jpeg'); // Convert frame to base64
+                        contextx.drawImage(videoElement, 0, 0, canvasx.width, canvasx.height);
+                        const imageData = canvasx.toDataURL('image/jpeg', 1); // Convert frame to base64
                         
                         const imageBlob = fetch(imageData).then(res => res.blob()); // base64 to blob
                         imageBlob.then(blob => ws.send(blob)); // Send the blob to the server
                     }, 100); // Adjust the interval as needed
                 });
-                ws.onmessage = function(event) {
-                    console.log('Message from server ', event.data);
 
-                    var arrayBuffer = new Uint8Array(event.data);
-                    var blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
+                ws.onmessage = function(event) {
+
+                    var blob = event.data
+                    if (!blob.type) {
+                        blob = new Blob([blob], { type: 'image/jpeg' });
+                    }
 
                     // Create an object URL from the Blob
                     var url = URL.createObjectURL(blob);
 
-                    // Set the source of the video element to the object URL
+                    var img = new Image();
+                    img.onload = function() {
+                        // Draw the image onto the canvas
+                        context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    };
                     img.src = url;
-
+    
                 };
             })
             .catch((error) => {
