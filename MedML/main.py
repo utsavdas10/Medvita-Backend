@@ -12,6 +12,9 @@ from utils.resize import resize_mfcc
 
 from video_processing.process_video_frame import process_video_frame
 
+import cv2
+import numpy as np
+
 
 app = FastAPI()
 
@@ -74,7 +77,20 @@ async def create_upload_files(audiofile: UploadFile):
         print(f"Unexpected error: {e}")
         return {"error": "Unexpected error"}
 
+async def process(data):
+     # Convert the binary data to a numpy array
+    np_data = np.frombuffer(data, dtype=np.uint8)
 
+    # Decode the image data
+    img = cv2.imdecode(np_data, cv2.IMREAD_COLOR)
+
+    # Convert the image to grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Encode the processed image back into JPEG format
+    _, jpeg = cv2.imencode('.jpg', gray)
+
+    return jpeg.tobytes()
 
 
 # A WebSocket endpoint to receive and send video frames
@@ -92,7 +108,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 if data:
                     # Process the video frame and return it as bytes
                     try:
-                        data = await process_video_frame(data) # Process the video frame
+                        # data = await process_video_frame(data) # Process the video frame
+                        data = await process(data) # Process the video frame
                     except Exception as e:
                         print(f"Error processing video frame: {e}")
                         break
@@ -116,4 +133,4 @@ if __name__ == "__main__":
     except ValueError:  # Handle invalid PORT values
         print("Invalid PORT environment variable. Using default port 4000.")
         port = 4000
-    run(app, host="0.0.0.0", port=port)
+    run(app, host="127.0.0.1", port=port)
