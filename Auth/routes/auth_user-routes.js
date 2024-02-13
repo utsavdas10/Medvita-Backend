@@ -4,6 +4,7 @@ const {check} = require('express-validator');
 
 // Local imports
 const authUserController = require('../controllers/auth_user-controllers');
+const checkAuth = require('../middlewares/check-auth');
 
 // Initializing
 const router = express.Router();
@@ -32,6 +33,24 @@ router.post(
         check('password').isLength({min: 6})
     ],
     authUserController.login
+);
+
+
+router.use(checkAuth); // Middleware to check if the user is authenticated
+
+
+// @route   GET auth/get_user
+router.get('/get_user', authUserController.getUser);
+
+
+// @route   PATCH auth/update_user
+router.patch(
+    '/update_user',
+    [
+        check('name').not().isEmpty(),
+        check('email').normalizeEmail().isEmail()
+    ],
+    authUserController.updateUser
 );
 
 

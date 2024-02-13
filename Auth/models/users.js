@@ -6,8 +6,15 @@ const userSchema = new mongoose.Schema({
     email: {type: String, required: true, unique:true},
     password: {type: String, required: true, minlength: 6},
     profile_pic: {data: Buffer, contentType: String},
-    phone: {type: String},
-    address: {type: String}
+    phone: {type: String, unique: true},
+    address: {
+        street: {type: String},
+        city: {type: String},
+        state: {type: String},
+        zip: {type: String},
+        lat: {type: Number},
+        lng: {type: Number}
+    },
 });
 
 userSchema.plugin(uniqueValidator);

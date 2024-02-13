@@ -10,6 +10,8 @@ const bcrypt = require('bcryptjs');
 const HttpError = require('../models/http-error');
 const User = require('../models/users');
 
+const blobToBase64 = require('../utils/blob-base64');
+
 
 
 //-----------------------Controllers-----------------------//
@@ -134,6 +136,99 @@ const login = async (req, res, next) => {
 
 
 
+const getUser = async (req, res, next) => {
+    // Extracting data from the request
+    const userId = req.userData.userId;
+
+    // Finding the user
+    let user;
+    try{
+        user = await User.findById(userId, '-password');
+    }
+    catch(err){
+        const error = new HttpError('Error in finding user!', 500);
+        return next(error);
+    }
+
+    if(!user){
+        const error = new HttpError('Could not find user for the provided id!', 404);
+        return next(error);
+    }
+
+    if (user.id !== req.userData.userId) {
+        const error = new HttpError('You are not allowed to view this user!', 401);
+        return next(error);
+    }
+
+    // Sending the response
+     res.status(200).json({user: user.toObject({getters: true})});
+}
+
+
+
+
+// Updating user
+const updateUser = async (req, res, next) => {
+    // Extracting data from the request
+    const {userId, name, profile_pic, phone, address} = req.body;
+
+    // Finding the user
+    let user;
+    try{
+        user = await User.findById(userId, '-password');
+    }
+    catch(err){
+        const error = new HttpError('Error in finding user!', 500);
+        return next(error);
+    }
+
+    if(!user){
+        const error = new HttpError('Could not find user for the provided id!', 404);
+        return next(error);
+    }
+
+    if (user.id !== req.userData.userId) {
+        const error = new HttpError('You are not allowed to edit this user!', 401);
+        return next(error);
+    }
+
+    if (profile_pic != "" && profile_pic != undefined) {
+        try{
+            profile_pic = await blobToBase64(profile_pic);
+        }
+        catch(err){
+            const error = new HttpError('Error in converting image!', 500);
+            return next(error);
+        }
+    }
+
+    
+    // Updating the user
+    (name == "" || name == undefined) ? user.name = user.name : user.name = name;
+    (profile_pic == "" || profile_pic == undefined) ? user.profile_pic = user.profile_pic : user.profile_pic = profile_pic;
+    (phone == "" || phone == undefined) ? user.phone = user.phone : user.phone = phone;
+    (address == {} || address == undefined) ? user.address = user.address : user.address = address;
+    
+
+    // Saving the user
+    try{
+        console.log(user);
+        await user.save();
+    }
+    catch(err){
+        const error = new HttpError('Error in updating user!', 500);
+        console.log(err);
+        return next(error);
+    }
+
+    // Sending the response
+    res.status(200).json({user: user.toObject({getters: true})});
+}
+
+
+
 // Exporting
 exports.signup = signup;
 exports.login = login;
+exports.getUser = getUser;
+exports.updateUser = updateUser;
