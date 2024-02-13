@@ -6,15 +6,15 @@
     <title>Webcam Stream</title>
 </head>
 <body>
-    <video id="video" width="600" height="600" autoplay></video>
-    <canvas id="canvas" width="330" height="330" style="border-style:dotted; border-color: rgb(106, 0, 255); "></canvas>
+    <video id="video" width="350" height="300" autoplay></video>
+    <canvas id="canvas" style="border: darkblue; border-style: dotted   ;"></canvas>
     
     <script>
         const videoElement = document.getElementById('video');
         var canvas = document.getElementById('canvas');
         var context = canvas.getContext('2d');
-        canvas.width = videoElement.width
-        canvas.height = videoElement.height
+        canvas.width = 350
+        canvas.height = 300
         
 
         // Access webcam stream
@@ -43,7 +43,7 @@
                         
                         const imageBlob = fetch(imageData).then(res => res.blob()); // base64 to blob
                         imageBlob.then(blob => ws.send(blob)); // Send the blob to the server
-                    }, 100); // Adjust the interval as needed
+                    }, 50); // Adjust the interval as needed
                 });
 
                 ws.onmessage = function(event) {
