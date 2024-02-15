@@ -16,6 +16,10 @@ const app = express();
 
 //-----------------------Middlewares-----------------------//
 
+// Body parser middleware
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+
 
 // CORS middleware
 app.use((req, res, next) => {
@@ -29,9 +33,6 @@ app.use((req, res, next) => {
 });
 
 
-// Body parser middleware
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
 
 
 // Routes middleware initialization
