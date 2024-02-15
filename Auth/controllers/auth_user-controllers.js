@@ -138,7 +138,7 @@ const login = async (req, res, next) => {
 
 const getUser = async (req, res, next) => {
     // Extracting data from the request
-    const userId = req.userData.userId;
+    const userId = req.body.userId;
 
     // Finding the user
     let user;
