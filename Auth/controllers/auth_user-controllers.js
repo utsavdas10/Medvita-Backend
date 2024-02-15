@@ -213,12 +213,10 @@ const updateUser = async (req, res, next) => {
 
     // Saving the user
     try{
-        console.log(user);
         await user.save();
     }
     catch(err){
         const error = new HttpError('Error in updating user!', 500);
-        console.log(err);
         return next(error);
     }
 
