@@ -138,7 +138,7 @@ const login = async (req, res, next) => {
 
 const getUser = async (req, res, next) => {
     // Extracting data from the request
-    const userId = req.body.userId;
+    const userId = req.params.uid;
 
     // Finding the user
     let user;
@@ -170,7 +170,8 @@ const getUser = async (req, res, next) => {
 // Updating user
 const updateUser = async (req, res, next) => {
     // Extracting data from the request
-    const {userId, name, profile_pic, phone, address} = req.body;
+    const userId = req.params.uid;
+    const {name, profile_pic, phone, address} = req.body;
 
     // Finding the user
     let user;

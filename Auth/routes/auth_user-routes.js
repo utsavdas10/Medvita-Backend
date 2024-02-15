@@ -40,12 +40,12 @@ router.use(checkAuth); // Middleware to check if the user is authenticated
 
 
 // @route   GET auth/get_user
-router.get('/get_user', authUserController.getUser);
+router.get('/get_user/:uid', authUserController.getUser);
 
 
 // @route   PATCH auth/update_user
 router.patch(
-    '/update_user',
+    '/update_user/:uid',
     [
         check('name').not().isEmpty(),
         check('email').normalizeEmail().isEmail()
