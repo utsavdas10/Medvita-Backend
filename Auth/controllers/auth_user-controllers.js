@@ -193,23 +193,23 @@ const updateUser = async (req, res, next) => {
         return next(error);
     }
 
-    if (profile_pic != "" && profile_pic != undefined) {
-        try{
-            profile_pic = await blobToBase64(profile_pic);
-        }
-        catch(err){
-            const error = new HttpError('Error in converting image!', 500);
-            return next(error);
-        }
-    }
-
     
     // Updating the user
     (name == "" || name == undefined) ? user.name = user.name : user.name = name;
-    (profile_pic == "" || profile_pic == undefined) ? user.profile_pic = user.profile_pic : user.profile_pic = profile_pic;
     (phone == "" || phone == undefined) ? user.phone = user.phone : user.phone = phone;
     (address == {} || address == undefined) ? user.address = user.address : user.address = address;
     
+
+    let imageBase64;
+    if (req.files.length == 0 || !req.files[0] || !req.files[0].mimetype.startsWith('image')) {
+        console.log('No image found');
+    }
+    else {
+        imageBase64 = await blobToBase64(req.files[0]);
+        if (imageBase64 && imageBase64 != "") {
+            user.profile_pic = imageBase64;
+        }
+    }
 
     // Saving the user
     try{
