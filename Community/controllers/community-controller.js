@@ -12,6 +12,7 @@ const Post = require('../models/post-model');
 // create new post
 const newPost = async (req, res, next) => {
     const {title, content, creator, community} = req.body;
+    console.log(creator)
     const date = new Date();
     const upVotes = 0;
 
