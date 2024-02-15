@@ -171,7 +171,7 @@ const getUser = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
     // Extracting data from the request
     const userId = req.params.uid;
-    const {name, profile_pic, phone, address} = req.body;
+    const {name, phone, address} = req.body;
 
     // Finding the user
     let user;
