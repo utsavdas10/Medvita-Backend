@@ -48,13 +48,13 @@ app.use(parseFormDataMiddleware.any());
 
 // CORS middleware
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*'); // Allow access to any domain
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-    ); // Allow these headers
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE'); // Allow these methods
-    next();
+  res.setHeader('Access-Control-Allow-Origin', '*'); // Allow access to any domain
+  res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Auth-Token'
+  ); // Allow these headers
+  res.setHeader('Access-Control-Allow-Methods','GET, POST, PUT, PATCH, DELETE'); // Allow these methods
+  next();
 });
 
 
