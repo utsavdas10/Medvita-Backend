@@ -15,18 +15,9 @@ const newPost = async (req, res, next) => {
     const date = new Date();
     const upVotes = 0;
 
-    const newPost = new Post({
-        title,
-        content,
-        creator,
-        date,
-        upVotes,
-        community
-    });
-
     let user;
     try {
-        user = await User.findById(creator, '-password');
+        user = await User.findById(creator, 'name posts');
     }
     catch(err){
         const error = new HttpError('Creating post failed, please try again', 500);
@@ -58,6 +49,17 @@ const newPost = async (req, res, next) => {
             posts: []
         });
     }
+
+    const creatorName = user.toObject({getters: true}).name
+    const newPost = new Post({
+        title,
+        content,
+        creator,
+        creatorName,
+        date,
+        upVotes,
+        community
+    });
 
     try {
         const sess = await mongoose.startSession();
@@ -98,7 +100,18 @@ const getPosts = async (req, res, next) => {
             return next(new HttpError('Could not find posts for the provided community', 404));
         }
 
-        res.json({posts: posts.map(post => post.toObject({getters: true}))});
+        posts = posts.map(post => post.toObject({getters: true}));
+        
+        for (let i = 0; i < posts.length; i++){
+            if (posts[i].upVoters.includes(req.userData.userId)){
+                posts[i].voted = true;
+            }
+            else{
+                posts[i].voted = false;
+            }
+        }
+            
+        res.json({posts: posts});
         return;
     }
 
@@ -115,7 +128,16 @@ const getPosts = async (req, res, next) => {
         return next(new HttpError('Could not find posts for the provided community', 404));
     }
 
-    res.json({posts: posts.posts.map(post => post.toObject({getters: true}))});
+    posts = posts.posts.map(post => post.toObject({getters: true}));
+    for (let i = 0; i < posts.length; i++){
+        if (posts[i].upVoters.includes(req.userData.userId)){
+            posts[i].voted = true;
+        }
+        else{
+            posts[i].voted = false;
+        }
+    }
+    res.json({posts: posts});
 }
 
 
