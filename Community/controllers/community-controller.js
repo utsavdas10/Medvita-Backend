@@ -89,7 +89,7 @@ const getPosts = async (req, res, next) => {
     if (community === 'General'){
         try {
             //fetch 20 posts
-            posts = await Post.find().sort({date: -1}).limit(20);
+            posts = await Post.find().limit(20).populate('upVoters');
         }
         catch(err){
             const error = new HttpError('Fetching posts failed, please try again later', 500);
@@ -101,42 +101,25 @@ const getPosts = async (req, res, next) => {
         }
 
         posts = posts.map(post => post.toObject({getters: true}));
-        
-        for (let i = 0; i < posts.length; i++){
-            if (posts[i].upVoters.includes(req.userData.userId)){
-                posts[i].voted = true;
-            }
-            else{
-                posts[i].voted = false;
-            }
-        }
             
         res.json({posts: posts});
         return;
     }
 
-
+    let community_;
     try {
-        posts = await Community.findOne({name: community}).populate('posts');
+        community_ = await Community.findOne({name: community}).populate('posts');
     }
     catch(err){
         const error = new HttpError('Fetching posts failed, please try again later', 500);
         return next(error);
     }
 
-    if(!posts || posts.posts.length === 0){
+    if(!community_ || community_.posts.length === 0){
         return next(new HttpError('Could not find posts for the provided community', 404));
     }
 
-    posts = posts.posts.map(post => post.toObject({getters: true}));
-    for (let i = 0; i < posts.length; i++){
-        if (posts[i].upVoters.includes(req.userData.userId)){
-            posts[i].voted = true;
-        }
-        else{
-            posts[i].voted = false;
-        }
-    }
+    posts = community_.posts.map(post => post.toObject({getters: true}));
     res.json({posts: posts});
 }
 
@@ -146,7 +129,7 @@ const addUpVotes = async (req, res, next) => {
     const postId = req.params.postId;
     let post;
     try {
-        post = await Post.findById(postId)
+        post = await Post.findById(postId);
     }
     catch(err){
         const error = new HttpError('Could not find post', 500);
@@ -175,6 +158,7 @@ const addUpVotes = async (req, res, next) => {
         await post.save();
     }
     catch(err){
+        console.log(err);
         const error = new HttpError('Could not upvote post', 500);
         return next(error);
     }
@@ -232,4 +216,3 @@ exports.newPost = newPost;
 exports.getPosts = getPosts;
 exports.addUpVotes = addUpVotes;
 exports.removeUpVotes = removeUpVotes;
-
