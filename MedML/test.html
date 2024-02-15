@@ -6,15 +6,15 @@
     <title>Webcam Stream</title>
 </head>
 <body>
-    <video id="video" width="350" height="300" autoplay></video>
-    <canvas id="canvas" style="border: darkblue; border-style: dotted   ;"></canvas>
+    <video id="video" width="350" height="195.5" autoplay></video>
+    <canvas id="canvas"></canvas>
     
     <script>
         const videoElement = document.getElementById('video');
         var canvas = document.getElementById('canvas');
         var context = canvas.getContext('2d');
         canvas.width = 350
-        canvas.height = 300
+        canvas.height = 195.5
         
 
         // Access webcam stream
@@ -23,7 +23,8 @@
                 videoElement.srcObject = stream;
 
                 // Create a WebSocket connection
-                const ws = new WebSocket('ws://127.0.0.1:8000/ws');
+                // const ws = new WebSocket('ws://127.0.0.1:8000/ws');
+                const ws = new WebSocket('wss://med-ai-api.onrender.com/ws');
 
                 // When the connection is open
                 ws.addEventListener('open', () => {
@@ -39,11 +40,11 @@
 
                     setInterval(() => {
                         contextx.drawImage(videoElement, 0, 0, canvasx.width, canvasx.height);
-                        const imageData = canvasx.toDataURL('image/jpeg', 1); // Convert frame to base64
+                        const imageData = canvasx.toDataURL('image/jpeg', 0.6); // Convert frame to base64
                         
                         const imageBlob = fetch(imageData).then(res => res.blob()); // base64 to blob
                         imageBlob.then(blob => ws.send(blob)); // Send the blob to the server
-                    }, 50); // Adjust the interval as needed
+                    }, 100); // Adjust the interval as needed
                 });
 
                 ws.onmessage = function(event) {

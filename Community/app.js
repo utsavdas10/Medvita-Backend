@@ -8,16 +8,13 @@ const mongoose = require('mongoose');
 
 // Local imports
 const HttpError = require('./models/http-error');
+const communityRoutes = require('./routes/community-routes');
 
 // Initializing
 const app = express();
 
 
 //-----------------------Middlewares-----------------------//
-
-// Body parser middleware
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
 
 
 // CORS middleware
@@ -27,12 +24,18 @@ app.use((req, res, next) => {
         'Access-Control-Allow-Headers',
         'Origin, X-Requested-With, Content-Type, Accept, Authorization'
     ); // Allow these headers
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST'); // Allow these methods
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE'); // Allow these methods
     next();
 });
 
 
+// Body parser middleware
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+
+
 // Routes middleware initialization
+app.use('/api/community', communityRoutes);
 
 
 // Page not found middleware
