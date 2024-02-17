@@ -11,6 +11,7 @@ const path = require('path');
 const HttpError = require('./models/http-error');
 const communityRoutes = require('./routes/community-routes');
 const blogsTipsRoutes = require('./routes/blogs_tips-routes');
+const mapsRoutes = require('./routes/maps-routes');
 
 // Initializing
 const app = express();
@@ -47,6 +48,7 @@ app.use('/images', express.static(path.join(__dirname,'images')));
 // Routes middleware initialization
 app.use('/api/community', communityRoutes);
 app.use('/api/blogs-tips', blogsTipsRoutes);
+app.use('/api/maps', mapsRoutes);
 
 
 // Page not found middleware
