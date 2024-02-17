@@ -53,6 +53,7 @@ const signup = async (req, res, next) => {
         password: hashedPassword
     });
 
+
     // Saving the user to the database
     try{
         await createdUser.save();

@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
     email: {type: String, required: true, unique:true},
     password: {type: String, required: true, minlength: 6},
     profile_pic: {type: String},
-    phone: {type: String, unique: true},
+    phone: {type: String},
     address: {
         street: {type: String},
         city: {type: String},
@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema({
     },
 });
 
-userSchema.plugin(uniqueValidator);
+userSchema.index({ phone: 1 }, { unique: true, partialFilterExpression: { phone: { $type: 'string' } } });
+// userSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model('User', userSchema);
