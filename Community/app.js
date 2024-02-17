@@ -5,16 +5,21 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const path = require('path');
 
 // Local imports
 const HttpError = require('./models/http-error');
 const communityRoutes = require('./routes/community-routes');
+const blogsTipsRoutes = require('./routes/blogs_tips-routes');
 
 // Initializing
 const app = express();
 
 
+
+
 //-----------------------Middlewares-----------------------//
+
 
 // Body parser middleware
 app.use(bodyParser.urlencoded({extended: true}));
@@ -33,10 +38,15 @@ app.use((req, res, next) => {
 });
 
 
+//serving static files
+app.use('/images', express.static(path.join(__dirname,'images')));
+
+
 
 
 // Routes middleware initialization
 app.use('/api/community', communityRoutes);
+app.use('/api/blogs-tips', blogsTipsRoutes);
 
 
 // Page not found middleware
