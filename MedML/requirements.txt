@@ -9,5 +9,5 @@ pathlib==1.0.1
 python-multipart==0.0.7
 opencv-python
 numpy
-mediapipe
+pandas
 opencv-python

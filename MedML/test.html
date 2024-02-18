@@ -6,15 +6,23 @@
     <title>Webcam Stream</title>
 </head>
 <body>
-    <video id="video" width="350" height="195.5" autoplay></video>
-    <canvas id="canvas"></canvas>
+    <video 
+        id="video" width="350" height="263" autoplay
+        style="border:dotted; border-color: black; transform: scaleX(-1);"
+    >
+    </video>
+    <canvas 
+        id="canvas" 
+        style="border: dotted; border-color: blue; transform: scaleX(-1)"
+    >
+    </canvas>
     
     <script>
         const videoElement = document.getElementById('video');
         var canvas = document.getElementById('canvas');
         var context = canvas.getContext('2d');
         canvas.width = 350
-        canvas.height = 195.5
+        canvas.height = 263
         
 
         // Access webcam stream
@@ -23,12 +31,13 @@
                 videoElement.srcObject = stream;
 
                 // Create a WebSocket connection
-                // const ws = new WebSocket('ws://127.0.0.1:8000/ws');
-                const ws = new WebSocket('wss://med-ai-api.onrender.com/ws');
+                const ws = new WebSocket('ws://127.0.0.1:8000/ws');
+                // const ws = new WebSocket('wss://med-ai-api.onrender.com/ws');
 
                 // When the connection is open
                 ws.addEventListener('open', () => {
                     console.log('WebSocket connection established');
+                    ws.send('downward_dog');
                 });
 
                 // When a new frame is available from the webcam
@@ -40,11 +49,11 @@
 
                     setInterval(() => {
                         contextx.drawImage(videoElement, 0, 0, canvasx.width, canvasx.height);
-                        const imageData = canvasx.toDataURL('image/jpeg', 0.6); // Convert frame to base64
+                        const imageData = canvasx.toDataURL('image/jpeg', 0.5); // Convert frame to base64
                         
                         const imageBlob = fetch(imageData).then(res => res.blob()); // base64 to blob
                         imageBlob.then(blob => ws.send(blob)); // Send the blob to the server
-                    }, 100); // Adjust the interval as needed
+                    }, 80); // Adjust the interval as needed
                 });
 
                 ws.onmessage = function(event) {
