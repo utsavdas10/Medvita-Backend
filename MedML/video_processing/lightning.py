@@ -34,7 +34,6 @@ async def lightning(data, yoga, interpreter, input_details, output_details):
 
     # Compare the keypoints with the expected keypoints
     if np.any(np.abs(keypoints_with_scores - expected_keypoints.expected_keypoints[yoga]) <= 0.0001):
-        print(yoga)
         cv2.putText(frame, yoga, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
 
@@ -53,6 +52,3 @@ async def lightning(data, yoga, interpreter, input_details, output_details):
     else:
         print("Error encoding image")
         return None
-
-
-    

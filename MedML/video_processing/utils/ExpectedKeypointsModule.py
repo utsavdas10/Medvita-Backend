@@ -244,3 +244,4 @@ class ExpectedKeypoints:
                 [0.65690166 ,0.7584364  ,0.32584167]
             ])
         }
+        print("ExpectedKeypoints object created.")

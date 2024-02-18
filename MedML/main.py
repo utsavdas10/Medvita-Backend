@@ -13,8 +13,6 @@ from utils.resize import resize_mfcc
 
 from video_processing.lightning import lightning
 
-import cv2
-import numpy as np
 
 
 app = FastAPI()
