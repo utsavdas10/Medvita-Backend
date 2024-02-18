@@ -113,7 +113,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     # Send the processed frame back to the client
                     await websocket.send_bytes(data) # Process the video frame and return it as bytes
                 else:
-                    break
+                    await websocket.send_bytes(data)
 
         except WebSocketDisconnect:
             print("Client disconnected.")
