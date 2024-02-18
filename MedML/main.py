@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import run
 
+import tensorflow as tf
 from keras.models import load_model
 
 import os
@@ -10,16 +11,13 @@ from pathlib import Path
 from utils.mfcc import extract_mfcc
 from utils.resize import resize_mfcc
 
-from video_processing.process_video_frame import process_video_frame
+from video_processing.lightning import lightning
 
 import cv2
 import numpy as np
 
 
 app = FastAPI()
-
-model_dir = "SERModel.h5"
-model = load_model(model_dir)
 
 
 app.add_middleware(
@@ -34,6 +32,8 @@ app.add_middleware(
 # route to upload audio files
 @app.post("/uploadfiles/")
 async def create_upload_files(audiofile: UploadFile):
+    model_dir = "models/SERModel.h5"
+    model = load_model(model_dir)
     UPLOAD_PATH = Path() / "uploads" # Path to save the uploaded file
 
     try:
@@ -77,20 +77,6 @@ async def create_upload_files(audiofile: UploadFile):
         print(f"Unexpected error: {e}")
         return {"error": "Unexpected error"}
 
-async def process(data):
-     # Convert the binary data to a numpy array
-    np_data = np.frombuffer(data, dtype=np.uint8)
-
-    # Decode the image data
-    img = cv2.imdecode(np_data, cv2.IMREAD_COLOR)
-
-    # Convert the image to grayscale
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    # Encode the processed image back into JPEG format
-    _, jpeg = cv2.imencode('.jpg', gray)
-
-    return jpeg.tobytes()
 
 
 # A WebSocket endpoint to receive and send video frames
@@ -98,29 +84,42 @@ async def process(data):
 async def websocket_endpoint(websocket: WebSocket):
     try:
         await websocket.accept() # Accept the WebSocket connection
+        await websocket.send_text("Connected to the server. Send video frames.") # Send a message to the client
         print("Client connected.")
 
+        yoga = await websocket.receive_text() # Receive a message from the client
+        print(f"Yoga pose: {yoga}")
+
+        model_dir = "models/3.tflite"
+        interpreter = tf.lite.Interpreter(model_path=model_dir) # Load the movenet model
+        interpreter.allocate_tensors() # Allocate tensors
+        input_details = interpreter.get_input_details() # Get input details
+        output_details = interpreter.get_output_details() # Get output details
+        print("Model loaded and ready.")
+
+
         try:
-            await websocket.send_text("Initial Message")
             while True:
                 # Receive a video frame as bytes from the client    
                 data = await websocket.receive_bytes()
                 if data:
-                    # Process the video frame and return it as bytes
                     try:
-                        # data = await process_video_frame(data) # Process the video frame
-                        data = await process(data) # Process the video frame
+                        data = await lightning(data, yoga, interpreter, input_details, output_details)
+                        # data = await process_video(data, yoga, interpreter, input_details, output_details)
                     except Exception as e:
                         print(f"Error processing video frame: {e}")
                         break
+
                     # Send the processed frame back to the client
-                    await websocket.send_bytes(data)
+                    await websocket.send_bytes(data) # Process the video frame and return it as bytes
                 else:
-                    break
+                    await websocket.send_bytes(data)
+
         except WebSocketDisconnect:
             print("Client disconnected.")
             await websocket.close(code=1000)
             
+
     except Exception as e:
         print(f"Unexpected error: {e}")
         await websocket.close(code=1011)
