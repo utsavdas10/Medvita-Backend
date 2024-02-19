@@ -10,7 +10,7 @@ const path = require('path');
 // Local imports
 const HttpError = require('./models/http-error');
 const communityRoutes = require('./routes/community-routes');
-const blogsTipsRoutes = require('./routes/blogs_tips-routes');
+const blogsTipsYogasRoutes = require('./routes/blogs_tips_yogas-routes');
 const mapsRoutes = require('./routes/maps-routes');
 
 // Initializing
@@ -41,13 +41,14 @@ app.use((req, res, next) => {
 
 //serving static files
 app.use('/images', express.static(path.join(__dirname,'images')));
+app.use('/videos', express.static(path.join(__dirname,'videos')));
 
 
 
 
 // Routes middleware initialization
 app.use('/api/community', communityRoutes);
-app.use('/api/blogs-tips', blogsTipsRoutes);
+app.use('/api/blogs-tips-yogas', blogsTipsYogasRoutes);
 app.use('/api/maps', mapsRoutes);
 
 
