@@ -2,15 +2,15 @@ import cv2
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from video_processing.utils.DrawModule import Draw
-from video_processing.utils.ExpectedKeypointsModule import ExpectedKeypoints
+from controllers.Video.utils.DrawModule import Draw
+from controllers.Video.utils.ExpectedKeypointsModule import ExpectedKeypoints
 
 
 draw = Draw()
 expected_keypoints = ExpectedKeypoints()
 
 
-async def lightning(data, yoga, interpreter, input_details, output_details): 
+async def process_video_frame(data, yoga, interpreter, input_details, output_details): 
     # Convert the binary data to a numpy array
     np_data = np.frombuffer(data, dtype=np.uint8) 
     
@@ -34,7 +34,6 @@ async def lightning(data, yoga, interpreter, input_details, output_details):
 
     # Compare the keypoints with the expected keypoints
     if np.any(np.abs(keypoints_with_scores - expected_keypoints.expected_keypoints[yoga]) <= 0.0001):
-        print(yoga)
         cv2.putText(frame, yoga, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
 
@@ -53,6 +52,3 @@ async def lightning(data, yoga, interpreter, input_details, output_details):
     else:
         print("Error encoding image")
         return None
-
-
-    
