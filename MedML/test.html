@@ -31,8 +31,8 @@
                 videoElement.srcObject = stream;
 
                 // Create a WebSocket connection
-                const ws = new WebSocket('ws://127.0.0.1:8000/ws');
-                // const ws = new WebSocket('wss://med-ai-api.onrender.com/ws');
+                // const ws = new WebSocket('ws://127.0.0.1:8000/ws');
+                const ws = new WebSocket('wss://med-ai-api.onrender.com/ws');
 
                 // When the connection is open
                 ws.addEventListener('open', () => {
@@ -49,11 +49,11 @@
 
                     setInterval(() => {
                         contextx.drawImage(videoElement, 0, 0, canvasx.width, canvasx.height);
-                        const imageData = canvasx.toDataURL('image/jpeg', 0.5); // Convert frame to base64
+                        const imageData = canvasx.toDataURL('image/jpeg', 0.7); // Convert frame to base64
                         
                         const imageBlob = fetch(imageData).then(res => res.blob()); // base64 to blob
                         imageBlob.then(blob => ws.send(blob)); // Send the blob to the server
-                    }, 80); // Adjust the interval as needed
+                    }, 120); // Adjust the interval as needed
                 });
 
                 ws.onmessage = function(event) {
