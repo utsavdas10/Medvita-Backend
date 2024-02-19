@@ -2,15 +2,15 @@ import cv2
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from video_processing.utils.DrawModule import Draw
-from video_processing.utils.ExpectedKeypointsModule import ExpectedKeypoints
+from controllers.Video.utils.DrawModule import Draw
+from controllers.Video.utils.ExpectedKeypointsModule import ExpectedKeypoints
 
 
 draw = Draw()
 expected_keypoints = ExpectedKeypoints()
 
 
-async def lightning(data, yoga, interpreter, input_details, output_details): 
+async def process_video_frame(data, yoga, interpreter, input_details, output_details): 
     # Convert the binary data to a numpy array
     np_data = np.frombuffer(data, dtype=np.uint8) 
     
