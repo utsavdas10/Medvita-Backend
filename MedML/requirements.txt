@@ -11,3 +11,4 @@ opencv-python
 numpy
 pandas
 opencv-python
+gensim[gensim-4.3.2,cuda]

@@ -6,6 +6,7 @@ import os
 
 from controllers.Video.process_video_controller import process_video
 from controllers.Audio.process_audio_controller import process_audio
+from controllers.Recommender.yoga_recommender_controller import recommend_yoga_pose, get_recommendations
 
 
 app = FastAPI()
@@ -24,7 +25,18 @@ app.add_middleware(
 @app.post("/uploadfiles/")
 async def create_upload_files(audiofile: UploadFile):
     return await process_audio(audiofile)
-    
+
+
+# route to recommend yoga poses
+@app.post("/yoga")
+async def yoga_reccomendation(first: str, second: str):
+    return await recommend_yoga_pose(first, second)
+
+
+# route to get yoga recommendations
+@app.get("/get_yoga_recommendations")
+async def get_yoga_recommendations():
+    return await get_recommendations()
 
 
 # A WebSocket endpoint to receive and send video frames
