@@ -8,6 +8,7 @@ from controllers.Video.process_video_controller import process_video
 from controllers.Audio.process_audio_controller import process_audio
 from controllers.Recommender.yoga_recommender_controller import recommend_yoga_pose, get_recommendations
 
+from models.Benefits import Benefits
 
 app = FastAPI()
 
@@ -29,7 +30,10 @@ async def create_upload_files(audiofile: UploadFile):
 
 # route to recommend yoga poses
 @app.post("/yoga")
-async def yoga_reccomendation(first: str, second: str):
+async def yoga_reccomendation(data: Benefits):
+    data = data.dict()
+    first = data['first']
+    second = data['second']
     return await recommend_yoga_pose(first, second)
 
 
