@@ -5,9 +5,8 @@ import os
 # recommend yoga poses
 async def recommend_yoga_pose(first: str, second: str):
     recommendation = await magic(first, second)
-
-    if not recommendation or len(recommendation) == 0:
-        return "Recommendation Failed"
+    if len(recommendation) == 0:
+        return "Recommendation Failed as no recommendation was made."
     
     # saving the recommendation list to a file
     try:
@@ -15,10 +14,10 @@ async def recommend_yoga_pose(first: str, second: str):
             for item in recommendation:
                 f.write("%s\n" % item)
     except:
-        return "Recommendation Failed"
+        return "Recommendation Failed as the recommendation could not be saved."
 
     return {
-            "message": "Recommendation Successful",\
+            "message": "Recommendation Successful",
             "recommendation": recommendation
         }
 
