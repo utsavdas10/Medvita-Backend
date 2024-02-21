@@ -7,8 +7,10 @@ import os
 from controllers.Video.process_video_controller import process_video
 from controllers.Audio.process_audio_controller import process_audio
 from controllers.Recommender.yoga_recommender_controller import recommend_yoga_pose, get_recommendations
+from controllers.Chat.sexual_chatbot_controller import chatbot
 
-from models.Benefits import Benefits
+from data.models.Benefits import Benefits
+from data.models.Query import Query
 
 app = FastAPI()
 
@@ -41,6 +43,14 @@ async def yoga_reccomendation(data: Benefits):
 @app.get("/get_yoga_recommendations")
 async def get_yoga_recommendations():
     return await get_recommendations()
+
+
+@app.post("/get_suggestion_from_chatbot")
+async def get_suggestion(query: Query):
+    data = query.dict()
+    query = data['query']
+    return await chatbot(query)
+
 
 
 # A WebSocket endpoint to receive and send video frames
