@@ -13,3 +13,20 @@ pandas
 opencv-python
 gensim[gensim-4.3.2,cuda]
 pydantic
+
+
+# for chatbot
+langchain
+langchain-community
+torch
+accelerate
+transformers
+ctransformers
+sentence_transformers
+streamlit
+streamlit_chat
+faiss-cpu
+altair
+tiktoken
+huggingface-hub
+pypdf
