@@ -1,9 +1,12 @@
 import streamlit as st
 from streamlit_chat import message
 
-from controllers.Chat.utils.ChatBotModule import ChatBot
+from controllers.Chat.utils.ChatBotSexHealthModule import ChatBotSexHealth
+from controllers.Chat.utils.ChatBotMentalHealthModule import ChatBotMentalHealth
 
-chatBot = ChatBot()
+
+chatBotSexHealth = ChatBotSexHealth()
+chatBotMentalHealth = ChatBotMentalHealth()
 
 
 async def initialize_session_state():
@@ -18,12 +21,20 @@ async def initialize_session_state():
 
 
 
-async def conversation_chat(query: str):
+async def conversation_chat(query: str, chat_type: str):
     await initialize_session_state()
-    result = chatBot.chain({
-        "question": query,
-        "chat_history": []
+    result = None
+    if chat_type == "sexual":
+        result = chatBotSexHealth.chain({
+            "question": query,
+            "chat_history": []
         })
+    else:
+        result = chatBotMentalHealth.chain({
+            "question": query,
+            "chat_history": []
+        })
+    
     # st.session_state['history'].append((query, result["answer"]))
     return result["answer"]
 

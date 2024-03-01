@@ -8,10 +8,10 @@ from langchain.memory import ConversationBufferMemory
 
 
 
-class ChatBot:
+class ChatBotMentalHealth:
     def __init__(self):
         #load the pdf files from the path
-        loader = DirectoryLoader('data/Books', glob="*.pdf", loader_cls=PyPDFLoader)
+        loader = DirectoryLoader('data/Books', glob="mh.pdf", loader_cls=PyPDFLoader)
         documents = loader.load()
 
         #split text into chunks
@@ -37,4 +37,4 @@ class ChatBot:
                                                     retriever=self.vector_store.as_retriever(search_kwargs={"k":2}),
                                                     memory=self.memory)
         
-        print("Chat Bot Module is initialized")
+        print("Chat Bot Mental Health Module is initialized")
