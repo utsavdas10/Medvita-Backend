@@ -45,11 +45,18 @@ async def get_yoga_recommendations():
     return await get_recommendations()
 
 
-@app.post("/get_suggestion_from_chatbot")
+@app.post("/get_sh_suggestion_from_chatbot")
 async def get_suggestion(query: Query):
     data = query.dict()
     query = data['query']
-    return await chatbot(query)
+    return await chatbot(query, "sexual")
+
+
+@app.post("/get_mh_suggestion_from_chatbot")
+async def get_suggestion(query: Query):
+    data = query.dict()
+    query = data['query']
+    return await chatbot(query, "mental")
 
 
 

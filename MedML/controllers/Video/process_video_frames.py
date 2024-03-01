@@ -34,7 +34,7 @@ async def process_video_frame(data, yoga, interpreter, input_details, output_det
 
     # Compare the keypoints with the expected keypoints
     if np.any(np.abs(keypoints_with_scores - expected_keypoints.expected_keypoints[yoga]) <= 0.0001):
-        cv2.putText(frame, yoga, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(frame, "Success", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
 
     # Rendering 
